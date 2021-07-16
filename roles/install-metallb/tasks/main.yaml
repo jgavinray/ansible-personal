@@ -14,5 +14,5 @@
     dest: /tmp/metallb.yaml
     force: yes
 
-- name: "Apply Namespace Manifest (4/4)"
+- name: "Apply MetalLb Manifest (4/4)"
   shell: kubectl apply -f /tmp/metallb.yaml

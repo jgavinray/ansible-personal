@@ -443,4 +443,3 @@ spec:
         runAsUser: 65534
       serviceAccountName: controller
       terminationGracePeriodSeconds: 0
-{"mode":"full","isActive":false}
