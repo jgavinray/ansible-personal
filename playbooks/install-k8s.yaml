@@ -7,3 +7,4 @@
 - import_playbook: k8s/install-cilium.yaml
 - import_playbook: k8s/kubeadm-join-masters.yaml
 - import_playbook: k8s/kubeadm-join-workers.yaml
+- import_playbook: k8s/install-metallb.yaml
