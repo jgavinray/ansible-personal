@@ -1,18 +1,6 @@
 ---
-- name: "Copy MetalLB Namespace Manifest to Node (1/4)"
-  template:
-    src: namespace.yaml
-    dest: /tmp/namespace.yaml
-    force: yes
+- name: "Apply Namespace Manifest (1/2)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/namespace.yaml
 
-- name: "Apply Namespace Manifest (2/4)"
-  shell: kubectl apply -f /tmp/namespace.yaml
-
-- name: "Copy MetalLB Manifest to Node (3/4)"
-  template:
-    src: metallb.yaml
-    dest: /tmp/metallb.yaml
-    force: yes
-
-- name: "Apply MetalLb Manifest (4/4)"
-  shell: kubectl apply -f /tmp/metallb.yaml
+- name: "Apply MetalLb Manifest (2/2)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/metallb.yaml
