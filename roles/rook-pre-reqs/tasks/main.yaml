@@ -1,0 +1,8 @@
+---
+- name: "Install ceph-osd (1/2)"
+  apt:
+    name: ceph-osd
+    state: present
+
+- name: "zap the /dev/sda3 partition (2/2)"
+  shell: "ceph-volume lvm zap /dev/sda3"

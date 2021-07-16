@@ -1,0 +1,4 @@
+- hosts: k8s_followers
+  become: yes
+  roles:
+    - rook-pre-reqs
