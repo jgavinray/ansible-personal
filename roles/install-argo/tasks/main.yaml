@@ -1,0 +1,6 @@
+---
+- name: "Apply Create ArgoCD Namespace (1/2)"
+  shell: kubectl create namespace argocd
+
+- name: "Apply Argo Manifest (2/2)"
+  shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.0.4/manifests/install.yaml

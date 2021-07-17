@@ -1,0 +1,4 @@
+- hosts: ubuntu01
+  become: yes
+  roles:
+    - install-argo
