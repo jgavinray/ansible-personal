@@ -7,3 +7,4 @@ venv/
 /.blackbox/pubring.gpg~
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
+/roles/create-secrets/templates/image-pull-secret.yaml

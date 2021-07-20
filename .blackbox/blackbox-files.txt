@@ -1,0 +1,1 @@
+roles/create-secrets/templates/image-pull-secret.yaml
