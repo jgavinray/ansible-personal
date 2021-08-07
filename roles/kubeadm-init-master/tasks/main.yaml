@@ -1,4 +1,15 @@
 ---
+- name: "Creates opt/kubernetes directory (-1/10)"
+  file:
+    path: /opt/kubernetes
+    state: directory
+
+- name: "Copy audit yaml (0/10)"
+  template:
+    src: audit.yaml
+    dest: /opt/kubernetes/audit.yaml
+    mode: 0644
+
 - name: "Create kubeadm init config yaml (1/10)"
   copy:
     content: "{{ kubeadm_config_options | to_nice_yaml }}"

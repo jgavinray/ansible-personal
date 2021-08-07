@@ -7,7 +7,5 @@
 - import_playbook: k8s/install-cilium.yaml
 - import_playbook: k8s/kubeadm-join-masters.yaml
 - import_playbook: k8s/kubeadm-join-workers.yaml
-- import_playbook: k8s/install-metallb.yaml
+#- import_playbook: k8s/install-metallb.yaml
 - import_playbook: k8s/rook-pre-reqs.yaml
-- import_playbook: k8s/install-rook.yaml
-- import_playbook: k8s/install-argo.yaml
