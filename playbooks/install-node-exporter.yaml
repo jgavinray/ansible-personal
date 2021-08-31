@@ -1,0 +1,4 @@
+- hosts: k8s
+  become: true
+  roles:
+    - install-node-exporter

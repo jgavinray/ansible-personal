@@ -1,0 +1,33 @@
+- name: "Ensure group 'node_exporter' exists"
+  ansible.builtin.group:
+    name: node_exporter
+    state: present
+
+- name: "Add the user 'node_exporter' with a specific uid and a primary group of 'node_exporter'"
+  user:
+    name: node_exporter
+    group: node_exporter
+
+- name: "Download node exporter 1.2.2 file with check (sha256)"
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz
+    dest: /tmp/node_exporter-1.2.2.linux-amd64.tar.gz
+    checksum: sha256:344bd4c0bbd66ff78f14486ec48b89c248139cdd485e992583ea30e89e0e5390
+
+- name: "Extract Node Exporter tar.gz"
+  ansible.builtin.shell: tar -xvf /tmp/node_exporter-1.2.2.linux-amd64.tar.gz -C /tmp
+
+- name: "Copy node_exporter to /usr/bin"
+  ansible.builtin.shell: cp /tmp/node_exporter-1.2.2.linux-amd64/node_exporter /usr/bin/node_exporter
+
+- name: "Copy node_exporter systemd service (3/4)"
+  template:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+    force: yes
+
+- name: "Restart service node_exporter, also issue daemon-reload to pick up config changes"
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: node_exporter
