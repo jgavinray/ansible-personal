@@ -1,0 +1,25 @@
+---
+
+- name: "Apply Custom Resource Definition Manifest (1/7)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.8/cluster/examples/kubernetes/ceph/crds.yaml
+
+- name: "Apply Common Manifest (2/7)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.8/cluster/examples/kubernetes/ceph/common.yaml
+
+- name: "Apply Operator Manifest (3/7)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.8/cluster/examples/kubernetes/ceph/operator.yaml
+
+- name: "Apply Cluster Manifest (4/7)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.8/cluster/examples/kubernetes/ceph/cluster.yaml
+
+- name: "Apply Storage Class Manifest (5/7)"
+  shell: kubectl apply -f https://raw.githubusercontent.com/rook/rook/v1.6.8/cluster/examples/kubernetes/ceph/csi/rbd/storageclass.yaml
+
+- name: "Upload Toolbox manifest (6/7)"
+  template:
+    src: toolbox.yaml
+    dest: /tmp/toolbox.yaml
+    force: yes
+
+- name: "Apply Toolbox Manifest (7/7)"
+  shell: kubectl apply -f /tmp/toolbox.yaml

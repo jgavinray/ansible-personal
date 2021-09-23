@@ -1,0 +1,4 @@
+- hosts: k8s_followers
+  become: yes
+  roles:
+    - cleanup-ceph-directories

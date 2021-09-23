@@ -1,2 +1,3 @@
 ---
 - import_playbook: k8s/kubeadm-reset.yaml
+- import_playbook: k8s/cleanup-ceph-directories.yaml
