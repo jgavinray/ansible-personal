@@ -1,17 +1,17 @@
 ---
 - name: "Install kubelet (1/8)"
   apt:
-    name: kubelet
+    name: kubelet=1.21.5-00
     state: present
 
 - name: "Install kubectl (2/8)"
   apt:
-    name: kubectl
+    name: kubectl=1.21.5-00
     state: present
 
 - name: "Install kubeadm (3/8)"
   apt:
-    name: kubeadm
+    name: kubeadm=1.21.5-00
     state: present
 
 
