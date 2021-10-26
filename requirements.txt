@@ -1,4 +1,4 @@
-ansible==4.1.0
+ansible==4.2.0
 ansible-core==2.11.1
 ansible-runner==1.4.6
 api-auth==1.0
