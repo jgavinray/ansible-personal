@@ -1,3 +1,5 @@
 ---
 - name: "Remove ceph directories"
-  shell: rm -r /var/lib/rook
+  ansible.builtin.file:
+    path: /var/lib/rook
+    state: absent
