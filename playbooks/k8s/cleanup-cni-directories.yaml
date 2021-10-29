@@ -1,0 +1,4 @@
+- hosts: k8s
+  become: yes
+  roles:
+    - cleanup-cni-directories

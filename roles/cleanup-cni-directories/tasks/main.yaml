@@ -1,0 +1,10 @@
+---
+- name: "Remove cni directories (1/2)"
+  ansible.builtin.file:
+    path: /etc/cni
+    state: absent
+
+- name: "Remove cni directories (2/2)"
+  ansible.builtin.file:
+    path: /var/lib/cni
+    state: absent
