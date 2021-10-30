@@ -1,6 +1,7 @@
 ---
 - name: "Run kubeadm reset (1/4)"
   shell: kubeadm reset -f
+  ignore_errors: yes
 
 - name: "Remove kubelet (2/4)"
   apt:
