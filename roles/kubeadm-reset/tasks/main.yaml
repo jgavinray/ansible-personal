@@ -1,20 +1,24 @@
 ---
-- name: "Run kubeadm reset (1/4)"
+- name: "Run kubeadm reset (1/5)"
   shell: kubeadm reset -f
   ignore_errors: yes
 
-- name: "Remove kubelet (2/4)"
+- name: "Remove kubelet (2/5)"
   apt:
     name: kubelet
     state: absent
 
-- name: "Remove kubectl (3/4)"
+- name: "Remove kubectl (3/5)"
   apt:
     name: kubectl
     state: absent
 
-- name: "Remove kubeadm (4/4)"
+- name: "Remove kubeadm (4/5)"
   apt:
     name: kubeadm
     state: absent
 
+- name: "Remove k8s directories (2/5)"
+  ansible.builtin.file:
+    path: /etc/kubernetes
+    state: absent
