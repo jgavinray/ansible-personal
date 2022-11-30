@@ -12,3 +12,19 @@ all:
       ansible_host: 192.168.0.28
     ubuntu05:
       ansible_host: 192.168.0.29
+    ubuntu06:
+      ansible_host: 192.168.0.30
+    rook01:
+      ansible_host: 192.168.0.40
+    rook02:
+      ansible_host: 192.168.0.41
+    rook03:
+      ansible_host: 192.168.0.42
+    hyper01:
+      ansible_host: 192.168.0.43
+    hyper02:
+      ansible_host: 192.168.0.44
+    hyper03:
+      ansible_host: 192.168.0.45
+    risc-v:
+      ansible_host: 192.168.0.56
