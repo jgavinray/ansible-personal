@@ -55,7 +55,7 @@ iotop==0.6
 ipaddr==2.2.0
 Jinja2==3.0.1
 jmespath==0.10.0
-joblib==1.0.0
+joblib==1.2.0
 jsonschema==3.2.0
 keyring==18.0.1
 kiwisolver==1.0.1
