@@ -2,8 +2,11 @@
 users:
   - jgavinray
 
-kubernetes_version: v1.21.0
-kubeadm_version: 1.21.0
+kubernetes_arch: "amd64"
+kubernetes_version: "v1.25.4"
+kubeadm_version: "1.25.0"
+cni_plugin_version: "v1.1.1"
+kubernetes_download_directory: "/opt/kubernetes"
 
 kubernetes_loadbalanced_api_dns: k8s-api01.domain.local
 kubernetes_cluster_label: jgavinray.cloud
