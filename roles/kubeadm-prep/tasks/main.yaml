@@ -1,52 +1,147 @@
 ---
-- name: "Install kubelet (1/8)"
-  apt:
-    name: kubelet=1.21.5-00
-    state: present
+- name: "Create Kubernetes binary directory"
+  ansible.builtin.file:
+    path: "{{ kubernetes_download_directory }}"
+    state: directory
+    recurse: true
 
-- name: "Install kubectl (2/8)"
-  apt:
-    name: kubectl=1.21.5-00
-    state: present
+- name: "Create CNI plugin directory"
+  ansible.builtin.file:
+    path: /opt/cni/bin
+    state: directory
+    recurse: true
 
-- name: "Install kubeadm (3/8)"
-  apt:
-    name: kubeadm=1.21.5-00
-    state: present
+- name: "Download CNI Plugin"
+  ansible.builtin.get_url:
+    url: "https://github.com/containernetworking/plugins/releases/download/{{ cni_plugin_version }}/cni-plugins-linux-{{ kubernetes_arch }}-{{ cni_plugin_version }}.tgz"
+    dest: "/opt/cni/cni-{{ cni_plugin_version }}.tgz"
 
+- name: "Extract cni.tgz into /opt/cni/bin"
+  ansible.builtin.unarchive:
+    src:  "/opt/cni/cni-{{ cni_plugin_version }}.tgz"
+    dest: /opt/cni/bin
 
-- name: "Adjust swapiness for k8s (4/8)"
-  lineinfile:
-    path: /etc/sysctl.d/k8s.conf
-    line: 'vm.swappiness = 0'
-    state: present
-    create: yes
+- name: "Download CRICTL"
+  ansible.builtin.get.url:
+    url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ kubernetes_version }}/crictl-{{ kubernetes_version }}-linux-{{ kubernetes_arch }}.tar.gz"
+    dest: "{{ kubernetes_download_directory }}/{{ kubernetes_version }}.tar.gz"
 
-- name: "Configure vm overcommit_memory (5/8)"
-  lineinfile:
-    path: /etc/sysctl.d/k8s.conf
-    line: 'vm.overcommit_memory = 1'
-    state: present
-    create: yes
+- name: "Extract CRICTL"
+  ansible.builtin.unarchive:
+    src:  "{{ kubernetes_download_directory }}/crictl-{{ kubernetes_version }}.tar.gz"
+    dest: "{{ kubernetes_download_directory }}"
 
-- name: "Add netbridge config ip4 (6/8)"
-  lineinfile:
-    path: /etc/sysctl.d/k8s.conf
-    line: 'net.bridge.bridge-nf-call-iptables = 1'
-    state: present
-    create: yes
+- name: "Download kubeadm"
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm"
+    dest: "{{ kubernetes_download_directory }}"
+    mode: '0755'
 
-- name: "Increase net ipv4 tcp_max_syn_backlog (7/8)"
-  lineinfile:
-    path: /etc/sysctl.d/k8s.conf
-    line: 'net.ipv4.tcp_max_syn_backlog=2621440'
-    state: present
-    create: yes
+- name: "Download kubelet"
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm"
+    dest: "{{ kubernetes_download_directory }}"
+    mode: '0755'
 
+- name: "Download kubelet.service"
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/kubernetes/release/v0.4.0/cmd/kubepkg/templates/latest/deb/kubelet/lib/systemd/system/kubelet.service"
+    dest: "{{ kubernetes_download_directory }}"
 
-- name: "Start and enable kubelet (8/8)"
-  systemd:
-    state: started
-    daemon_reload: yes
+- name: "Download kubeadm.service"
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/kubernetes/release/v0.4.0/cmd/kubepkg/templates/latest/deb/kubeadm/10-kubeadm.conf"
+    dest: "{{ kubernetes_download_directory }}"
+
+- name: "Kubelet service"
+  replace:
+    path: "{{ kubernetes_download_directory }}/kubelet.service"
+    regexp: '/usr/bin'
+    replace: "{{ kubernetes_download_directory }}"
+
+- name: "Create kubelet systemd directory"
+  become: true
+  ansible.builtin.file:
+    path: "/etc/systemd/system/kubelet.service.d"
+    state: directory
+    recurse: true
+
+- name: "Move kubelet service"
+  become: true
+  ansible.builtin.copy:
+    src: "{{ kubernetes_download_directory }}/kubelet.service"
+    dest: "/etc/systemd/system/kubelet.service"
+    remote_src: true
+
+- name: "Kubeadmn service"
+  replace:
+    path: "{{ kubernetes_download_directory }}/10-kubeadm.conf"
+    regexp: '/usr/bin'
+    replace: "{{ kubernetes_download_directory }}"
+
+- name: "Move kubeadm config file"
+  become: true
+  ansible.builtin.copy:
+    src: "{{ kubernetes_download_directory }}/10-kubeadm.conf"
+    dest: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+    remote_src: true
+
+- name: "Enable service kubelet"
+  become: true
+  ansible.builtin.systemd:
     name: kubelet
-    enabled: yes
+    daemon_reload: true
+    state: started
+    enabled: true
+
+#- name: "Install kubelet (1/8)"
+#  apt:
+#    name: kubelet=1.21.5-00
+#    state: present
+#
+#- name: "Install kubectl (2/8)"
+#  apt:
+#    name: kubectl=1.21.5-00
+#    state: present
+#
+#- name: "Install kubeadm (3/8)"
+#  apt:
+#    name: kubeadm=1.21.5-00
+#    state: present
+#
+#
+#- name: "Adjust swapiness for k8s (4/8)"
+#  lineinfile:
+#    path: /etc/sysctl.d/k8s.conf
+#    line: 'vm.swappiness = 0'
+#    state: present
+#    create: yes
+#
+#- name: "Configure vm overcommit_memory (5/8)"
+#  lineinfile:
+#    path: /etc/sysctl.d/k8s.conf
+#    line: 'vm.overcommit_memory = 1'
+#    state: present
+#    create: yes
+#
+#- name: "Add netbridge config ip4 (6/8)"
+#  lineinfile:
+#    path: /etc/sysctl.d/k8s.conf
+#    line: 'net.bridge.bridge-nf-call-iptables = 1'
+#    state: present
+#    create: yes
+#
+#- name: "Increase net ipv4 tcp_max_syn_backlog (7/8)"
+#  lineinfile:
+#    path: /etc/sysctl.d/k8s.conf
+#    line: 'net.ipv4.tcp_max_syn_backlog=2621440'
+#    state: present
+#    create: yes
+#
+#
+#- name: "Start and enable kubelet (8/8)"
+#  systemd:
+#    state: started
+#    daemon_reload: yes
+#    name: kubelet
+#    enabled: yes
