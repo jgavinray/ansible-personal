@@ -1,59 +1,72 @@
 ---
 - name: "Create Kubernetes binary directory"
+  become: true
   ansible.builtin.file:
     path: "{{ kubernetes_download_directory }}"
     state: directory
     recurse: true
 
 - name: "Create CNI plugin directory"
+  become: true
   ansible.builtin.file:
     path: /opt/cni/bin
     state: directory
     recurse: true
 
 - name: "Download CNI Plugin"
+  become: true
   ansible.builtin.get_url:
     url: "https://github.com/containernetworking/plugins/releases/download/{{ cni_plugin_version }}/cni-plugins-linux-{{ kubernetes_arch }}-{{ cni_plugin_version }}.tgz"
     dest: "/opt/cni/cni-{{ cni_plugin_version }}.tgz"
 
 - name: "Extract cni.tgz into /opt/cni/bin"
+  become: true
   ansible.builtin.unarchive:
     src:  "/opt/cni/cni-{{ cni_plugin_version }}.tgz"
-    dest: /opt/cni/bin
+    dest: "/opt/cni/bin"
+    remote_src: true
 
 - name: "Download CRICTL"
-  ansible.builtin.get.url:
+  become: true
+  ansible.builtin.get_url:
     url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ kubernetes_version }}/crictl-{{ kubernetes_version }}-linux-{{ kubernetes_arch }}.tar.gz"
-    dest: "{{ kubernetes_download_directory }}/{{ kubernetes_version }}.tar.gz"
+    dest: "{{ kubernetes_download_directory }}/crictl-{{ kubernetes_version }}.tar.gz"
 
 - name: "Extract CRICTL"
+  become: true
   ansible.builtin.unarchive:
     src:  "{{ kubernetes_download_directory }}/crictl-{{ kubernetes_version }}.tar.gz"
     dest: "{{ kubernetes_download_directory }}"
+    remote_src: true
 
 - name: "Download kubeadm"
+  become: true
   ansible.builtin.get_url:
     url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm"
     dest: "{{ kubernetes_download_directory }}"
     mode: '0755'
 
 - name: "Download kubelet"
+  become: true
   ansible.builtin.get_url:
     url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm"
     dest: "{{ kubernetes_download_directory }}"
     mode: '0755'
 
 - name: "Download kubelet.service"
+  become: true
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/kubernetes/release/v0.4.0/cmd/kubepkg/templates/latest/deb/kubelet/lib/systemd/system/kubelet.service"
     dest: "{{ kubernetes_download_directory }}"
 
 - name: "Download kubeadm.service"
+  become: true
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/kubernetes/release/v0.4.0/cmd/kubepkg/templates/latest/deb/kubeadm/10-kubeadm.conf"
     dest: "{{ kubernetes_download_directory }}"
 
 - name: "Kubelet service"
+  become: true
   replace:
     path: "{{ kubernetes_download_directory }}/kubelet.service"
     regexp: '/usr/bin'
@@ -74,6 +87,7 @@
     remote_src: true
 
 - name: "Kubeadmn service"
+  become: true
   replace:
     path: "{{ kubernetes_download_directory }}/10-kubeadm.conf"
     regexp: '/usr/bin'
@@ -93,55 +107,3 @@
     daemon_reload: true
     state: started
     enabled: true
-
-#- name: "Install kubelet (1/8)"
-#  apt:
-#    name: kubelet=1.21.5-00
-#    state: present
-#
-#- name: "Install kubectl (2/8)"
-#  apt:
-#    name: kubectl=1.21.5-00
-#    state: present
-#
-#- name: "Install kubeadm (3/8)"
-#  apt:
-#    name: kubeadm=1.21.5-00
-#    state: present
-#
-#
-#- name: "Adjust swapiness for k8s (4/8)"
-#  lineinfile:
-#    path: /etc/sysctl.d/k8s.conf
-#    line: 'vm.swappiness = 0'
-#    state: present
-#    create: yes
-#
-#- name: "Configure vm overcommit_memory (5/8)"
-#  lineinfile:
-#    path: /etc/sysctl.d/k8s.conf
-#    line: 'vm.overcommit_memory = 1'
-#    state: present
-#    create: yes
-#
-#- name: "Add netbridge config ip4 (6/8)"
-#  lineinfile:
-#    path: /etc/sysctl.d/k8s.conf
-#    line: 'net.bridge.bridge-nf-call-iptables = 1'
-#    state: present
-#    create: yes
-#
-#- name: "Increase net ipv4 tcp_max_syn_backlog (7/8)"
-#  lineinfile:
-#    path: /etc/sysctl.d/k8s.conf
-#    line: 'net.ipv4.tcp_max_syn_backlog=2621440'
-#    state: present
-#    create: yes
-#
-#
-#- name: "Start and enable kubelet (8/8)"
-#  systemd:
-#    state: started
-#    daemon_reload: yes
-#    name: kubelet
-#    enabled: yes
