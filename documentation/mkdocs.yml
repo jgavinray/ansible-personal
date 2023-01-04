@@ -1,5 +1,13 @@
 site_name: Personal Ansible Setup
 theme:
   name: material
+  features:
+    - instant
+  palette:
+    scheme: slate
+    primary: blue
+    accent: white
 watch:
   - docs/
+
+copyright: Copyright &copy; 2023 <a href="https://www.jgavinray.com">J. Gavin Ray</a>
