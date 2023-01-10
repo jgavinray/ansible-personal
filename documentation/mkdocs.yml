@@ -3,6 +3,7 @@ theme:
   name: material
   features:
     - instant
+    - navigation.sections
   palette:
     scheme: slate
     primary: blue
@@ -10,4 +11,4 @@ theme:
 watch:
   - docs/
 
-copyright: Copyright &copy; 2023 <a href="https://www.jgavinray.com">J. Gavin Ray</a>
+copyright: Copyright &copy; 2023 <a href="https://jgavinray.com">J. Gavin Ray</a>
