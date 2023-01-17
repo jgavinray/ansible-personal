@@ -42,7 +42,7 @@ entrypoints==0.3
 evdev==1.3.0
 fasteners==0.14.1
 filelock==3.0.12
-future==0.18.2
+future==0.18.3
 Glances==3.2.1
 grpcio==1.33.2
 html5lib==1.0.1
