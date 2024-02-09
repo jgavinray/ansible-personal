@@ -1,0 +1,6 @@
+---
+
+- import_tasks: create_mimir_user.yaml
+- import_tasks: create_install_paths.yaml
+- import_tasks: install_mimir_binary.yaml
+- import_tasks: install_mimir_service.yaml

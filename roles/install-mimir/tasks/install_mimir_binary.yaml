@@ -1,0 +1,20 @@
+---
+- name: Download a file and ensure correct ownership
+  hosts: monitoring
+  become: true
+  tasks:
+    - name: Download file from the Internet
+      ansible.builtin.get_url:
+        url: "https://github.com/grafana/mimir/releases/download/mimir-{{ mimir_version}}/mimir-{{ mimir_platform }}-{{ mimir_architecture }}"
+        dest: "{{ mimir_install_directory }}"
+        checksum: "{{ mimir_binary_sha }}"
+        owner: "{{ mimir_user }}"
+        group: "{{ mimir_user }}"
+        mode: '0755'
+
+    - name: Ensure file ownership and permissions
+      ansible.builtin.file:
+        path: "/path/to/destination/filename"
+        owner: "{{ mimir_user }}"
+        group: "{{ mimir_user }}"
+        mode: '0755'

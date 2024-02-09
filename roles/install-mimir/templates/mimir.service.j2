@@ -1,0 +1,12 @@
+[Unit]
+Description=Mimir by Grafana Labs
+
+[Service]
+User={{ mimir_user }}
+Restart=always
+RestartSec=5
+WorkingDirectory=mimir_install_directory
+ExecStart=mimir_install_directory
+
+[Install]
+WantedBy=multi-user.target

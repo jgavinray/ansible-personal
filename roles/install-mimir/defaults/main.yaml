@@ -1,0 +1,41 @@
+---
+# Single node mimir deployment - meant to be stupid simple and not redundant
+
+# Mimir Version specific details
+mimir_version: 2.11.0
+mimir_platform: linux
+mimir_architecture: arm64
+mimir_binary_sha: "sha256:1e48254e1038684232ebd945523d6c7839b5f7a66f68e6caeade58cdf1183aa7"
+
+mimir_user: "mimir"
+mimir_install_directory: "/opt/mimir"
+
+# Block storage
+mimir_blocks_storage_backend: "filesystem"
+mimir_bucket_store_directory: "{{ mimir_install_directory }}/tsdb-sync"
+mimir_blocks_storage_file_system_directory: "{{ mimir_install_directory }}/data/tsdb"
+mimir_blocks_storage_tsdb_directory: "{{ mimir_install_directory }}/tsdb"
+
+# Compactor
+mimir_compactor_data_directory: "{{ mimir_install_directory }}/compactor"
+mimir_compactor_kv_store: "memberlist"
+
+# Distributor
+mimir_distributor_ring_address: "127.0.0.1"
+mimir_distributor_ring_kvstore_store: "memberlist"
+
+# Ingester
+mimir_ingester_ring_address: "127.0.0.1"
+mimir_ingester_kvstore_store: "memberlist"
+mimir_ingester_ring_replicas: 1
+
+# Ruler Storage
+mimir_ruler_storage_backend: "filesystem"
+mimir_ruler_storage_filesystem_dir: "{{ mimir_install_directory }}/rules"
+
+# Server
+mimir_server_http_port: 9009
+mimir_server_log_level: "error"
+
+# Store Gateway
+mimir_storage_gateway_replicas: 1

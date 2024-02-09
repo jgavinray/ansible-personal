@@ -1,0 +1,44 @@
+---
+# Single Node Configuration for Mimir
+multitenancy_enabled: false
+
+blocks_storage:
+  backend: "{{ mimir_blocks_storage_backend }}"
+  bucket_store:
+    sync_dir: "{{ mimir_bucket_store_directory }}"
+  filesystem:
+    dir: "{{ mimir_blocks_storage_file_system_directory }}"
+  tsdb:
+    dir: "{{ mimir_blocks_storage_tsdb_directory }}"
+
+compactor:
+  data_dir: "{{ mimir_compactor_data_directory }}"
+  sharding_ring:
+    kvstore:
+      store: "{{ mimir_compactor_kv_store }}"
+
+distributor:
+  ring:
+    instance_addr: "{{ mimir_distributor_ring_address }}"
+    kvstore:
+      store: "{{ mimir_distributor_ring_kvstore_store }}"
+
+ingester:
+  ring:
+    instance_addr: "{{ mimir_ingester_ring_address }}"
+    kvstore:
+      store: "{{ mimir_ingester_kvstore_store }}"
+    replication_factor: {{ mimir_ingester_ring_replicas }}
+
+ruler_storage:
+  backend: "{{ mimir_ruler_storage_backend }}"
+  filesystem:
+    dir: "{{ mimir_ruler_storage_filesystem_dir }}"
+
+server:
+  http_listen_port: {{ mimir_server_http_port }}
+  log_level: "{{ mimir_server_log_level }}"
+
+store_gateway:
+  sharding_ring:
+    replication_factor: {{ mimir_storage_gateway_replicas }}

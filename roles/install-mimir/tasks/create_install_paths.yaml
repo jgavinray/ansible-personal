@@ -1,0 +1,31 @@
+---
+- name: Create Mimir directories and set ownership
+  hosts: monitoring
+  become: true
+  tasks:
+    - name: Create a list of directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ mimir_install_directory }}"
+        - "{{ mimir_bucket_store_directory }}"
+        - "{{ mimir_blocks_storage_file_system_directory }}"
+        - "{{ mimir_blocks_storage_tsdb_directory}}"
+        - "{{ mimir_compactor_data_directory }}"
+        - "{{ mimir_ruler_storage_filesystem_dir }}"
+
+    - name: Set ownership on the directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ mimir_user }}"
+        group: "{{ mimir_user }}"
+      loop:
+        - "{{ mimir_install_directory }}"
+        - "{{ mimir_bucket_store_directory }}"
+        - "{{ mimir_blocks_storage_file_system_directory }}"
+        - "{{ mimir_blocks_storage_tsdb_directory}}"
+        - "{{ mimir_compactor_data_directory }}"
+        - "{{ mimir_ruler_storage_filesystem_dir }}"

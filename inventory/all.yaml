@@ -1,3 +1,4 @@
+---
 all:
   hosts:
     pxe:
@@ -28,3 +29,5 @@ all:
       ansible_host: 192.168.0.45
     risc-v:
       ansible_host: 192.168.0.56
+    monitoring:
+      ansible_host: 192.168.0.51
