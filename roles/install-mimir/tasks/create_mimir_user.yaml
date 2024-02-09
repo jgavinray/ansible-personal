@@ -1,5 +1,6 @@
 ---
 - name: Create mimir service user with no login shell
+  become: true
   ansible.builtin.user:
     name: "{{ mimir_user }}"
     shell: /usr/sbin/nologin

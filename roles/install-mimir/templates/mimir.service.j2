@@ -5,8 +5,8 @@ Description=Mimir by Grafana Labs
 User={{ mimir_user }}
 Restart=always
 RestartSec=5
-WorkingDirectory=mimir_install_directory
-ExecStart=mimir_install_directory
+WorkingDirectory={{ mimir_install_directory }}
+ExecStart={{ mimir_install_directory }}/mimir
 
 [Install]
 WantedBy=multi-user.target
