@@ -16,3 +16,12 @@
     owner: "{{ mimir_user }}"
     group: "{{ mimir_user }}"
     mode: '0755'
+
+- name: Install configuration file
+  become: true
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /opt/mimir/config.yaml
+    owner: "{{ mimir_user }}"
+    group: "{{ mimir_user }}"
+    mode: '0644'
