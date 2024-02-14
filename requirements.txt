@@ -1,5 +1,5 @@
 ansible==4.2.0
-ansible-core==2.11.1
+ansible-core==2.15.9
 ansible-runner==2.1.1
 api-auth==1.0
 appdirs==1.4.3
