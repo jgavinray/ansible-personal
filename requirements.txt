@@ -21,7 +21,7 @@ codespell==1.17.1
 colorama==0.4.3
 command-not-found==0.3
 contextlib2==0.6.0
-cryptography==3.4.7
+cryptography==42.0.0
 cupshelpers==1.0
 cycler==0.10.0
 dateutils==0.6.12
