@@ -1,10 +1,4 @@
 ---
-- name: Ensure the Loki installation directory exists
-  become: true
-  ansible.builtin.file:
-    path: "{{ loki_install_directory }}"
-    state: directory
-    mode: '0755'
 
 - name: Download file from the Internet
   become: true
