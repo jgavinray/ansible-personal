@@ -1,0 +1,8 @@
+---
+- name: Create loki service user with no login shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ loki_user }}"
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
