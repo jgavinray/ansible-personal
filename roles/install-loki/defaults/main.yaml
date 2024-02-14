@@ -5,7 +5,7 @@
 loki_version: 2.9.4
 loki_platform: linux
 loki_architecture: arm64
-loki_zip_sha: "sha256:73eb7159283b3258f943f0b5f363973e89613f85e287bcf4ae5852bd73616ab6"
+loki_zip_sha: "sha256:92d1ea859044a9fc8d5916cb36a464545fec7bd70a7471c65cd21cc0f1834493"
 
 loki_user: "loki"
 loki_install_directory: "/opt/loki"

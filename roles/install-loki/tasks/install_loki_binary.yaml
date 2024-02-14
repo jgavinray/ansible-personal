@@ -1,4 +1,11 @@
 ---
+- name: Ensure the Loki installation directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ loki_install_directory }}"
+    state: directory
+    mode: '0755'
+
 - name: Download file from the Internet
   become: true
   ansible.builtin.get_url:
@@ -10,16 +17,22 @@
   become: true
   ansible.builtin.unarchive:
     src: "{{ loki_install_directory }}/loki.zip"
-    dest: "{{ loki_install_directory }}/loki"
-    remove_src: true
+    dest: "{{ loki_install_directory }}"
+    remote_src: true
+
+- name: Rename loki binary from platform specific to generic
+  become: true
+  ansible.builtin.command:
+    cmd: "mv {{ loki_install_directory }}/loki-{{ loki_platform }}-{{ loki_architecture }} {{ loki_install_directory }}/loki"
 
 - name: Ensure file ownership and permissions
   become: true
   ansible.builtin.file:
-    path: "{{ loki_install_directory }}/loki"
+    path: "{{ loki_install_directory }}"
     owner: "{{ loki_user }}"
     group: "{{ loki_user }}"
     mode: '0755'
+    recurse: true
 
 - name: Install configuration file
   become: true
