@@ -36,6 +36,7 @@ mimir_ruler_storage_filesystem_dir: "{{ mimir_install_directory }}/rules"
 # Server
 mimir_server_http_port: 9009
 mimir_server_log_level: "error"
+mimir_server_grpc_port: 9095
 
 # Store Gateway
 mimir_storage_gateway_replicas: 1
