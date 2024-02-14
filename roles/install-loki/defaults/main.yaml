@@ -34,10 +34,10 @@ loki_schema_config_index_prefix: "index_"
 loki_schema_config_index_period: "24h"
 
 # Loki storage configuration
-loki_storage_config_boltdb_shipper_active_index_directory: "/tmp/loki/index"
-loki_storage_config_boltdb_shipper_cache_location: "/tmp/loki/index_cache"
+loki_storage_config_boltdb_shipper_active_index_directory: "/opt/loki/index"
+loki_storage_config_boltdb_shipper_cache_location: "/opt/loki/index_cache"
 loki_storage_config_boltdb_shipper_shared_store: "filesystem"
-loki_storage_config_filesystem_directory: "/tmp/loki/chunks"
+loki_storage_config_filesystem_directory: "/opt/loki/chunks"
 
 # Loki limits configuration
 loki_limits_config_enforce_metric_name: false
@@ -52,5 +52,5 @@ loki_table_manager_retention_deletes_enable: false
 loki_table_manager_retention_period: "0s"
 
 # Loki compactor configuration
-loki_compactor_working_directory: "/tmp/loki/compactor"
+loki_compactor_working_directory: "/opt/loki/compactor"
 loki_compactor_shared_store: "filesystem"
