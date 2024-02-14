@@ -1,0 +1,31 @@
+---
+- name: Download file from the Internet
+  become: true
+  ansible.builtin.get_url:
+    url: "https://github.com/grafana/loki/releases/download/v{{ loki_version}}/loki-{{ loki_platform }}-{{ loki_architecture }}.zip"
+    dest: "{{ loki_install_directory }}/loki.zip"
+    checksum: "{{ loki_zip_sha }}"
+
+- name: Unzip loki archive
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ loki_install_directory }}/loki.zip"
+    dest: "{{ loki_install_directory }}/loki"
+    remove_src: true
+
+- name: Ensure file ownership and permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ loki_install_directory }}/loki"
+    owner: "{{ loki_user }}"
+    group: "{{ loki_user }}"
+    mode: '0755'
+
+- name: Install configuration file
+  become: true
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /opt/loki/config.yaml
+    owner: "{{ loki_user }}"
+    group: "{{ loki_user }}"
+    mode: '0644'
