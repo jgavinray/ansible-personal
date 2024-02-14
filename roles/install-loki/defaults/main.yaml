@@ -5,9 +5,7 @@
 loki_version: 2.9.4
 loki_platform: linux
 loki_architecture: arm64
-loki_binary_sha: "sha256:73eb7159283b3258f943f0b5f363973e89613f85e287bcf4ae5852bd73616ab6"
-
-# https://github.com/grafana/loki/releases/download/v{{ loki_version}}/loki-{{ loki_platform }}-{{ loki_architecture }}.zip
+loki_zip_sha: "sha256:73eb7159283b3258f943f0b5f363973e89613f85e287bcf4ae5852bd73616ab6"
 
 loki_user: "loki"
 loki_install_directory: "/opt/loki"
