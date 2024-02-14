@@ -38,6 +38,7 @@ ruler_storage:
 server:
   http_listen_port: {{ mimir_server_http_port }}
   log_level: "{{ mimir_server_log_level }}"
+  grpc_listen_port: {{ mimir_server_grpc_port }}
 
 store_gateway:
   sharding_ring:
