@@ -1,0 +1,6 @@
+---
+
+- import_tasks: create_loki_user.yaml
+- import_tasks: create_install_paths.yaml
+- import_tasks: install_loki_binary.yaml
+- import_tasks: install_loki_service.yaml
