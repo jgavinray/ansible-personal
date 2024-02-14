@@ -1,0 +1,27 @@
+---
+- name: Create a list of loki directories
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ loki_install_directory }}"
+    - "{{ loki_storage_config_boltdb_shipper_active_index_directory }}"
+    - "{{ loki_storage_config_boltdb_shipper_cache_location }}"
+    - "{{ loki_storage_config_filesystem_directory }}"
+    - "{{ loki_compactor_working_directory }}"
+
+- name: Set ownership on the loki directories
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ loki_user }}"
+    group: "{{ loki_user }}"
+  loop:
+    - "{{ loki_install_directory }}"
+    - "{{ loki_storage_config_boltdb_shipper_active_index_directory }}"
+    - "{{ loki_storage_config_boltdb_shipper_cache_location }}"
+    - "{{ loki_storage_config_filesystem_directory }}"
+    - "{{ loki_compactor_working_directory }}"
