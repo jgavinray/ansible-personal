@@ -1,0 +1,12 @@
+[Unit]
+Description=Loki by Grafana Labs
+
+[Service]
+User={{ loki_user }}
+Restart=always
+RestartSec=5
+WorkingDirectory={{ loki_install_directory }}
+ExecStart={{ loki_install_directory }}/loki
+
+[Install]
+WantedBy=multi-user.target
