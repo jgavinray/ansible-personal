@@ -1,0 +1,50 @@
+auth_enabled: {{  loki_auth_enabled }}
+
+server:
+  http_listen_port: {{ loki_server_http_listen_post }}
+  grpc_listen_port: {{ loki_server_grpc_listen_post }}
+
+ingester:
+  lifecycler:
+    address: {{ loki_ingester_lifecycler_address }}
+    ring:
+      kvstore:
+        store: {{ loki_ingester_lifecycler_ring_kvstore_store }}
+      replication_factor: {{ loki_ingester_lifecycler_ring_replication_factor }}
+  chunk_idle_period: {{ loki_ingester_chunk_idle_period }}
+  chunk_retain_period: {{ loki_ingester_chunk_retain_period }}
+  max_transfer_retries: {{ loki_ingester_max_transfer_retries }}
+
+schema_config:
+  configs:
+  - from: {{ loki_schema_config_configs_from }}
+    store: {{ loki_schema_config_configs_store }}
+    object_store: {{ loki_schema_config_object_store }}
+    schema: {{ loki_schema_config_schema }}
+    index:
+      prefix: {{ loki_schema_config_index_prefix }}
+      period: {{ loki_schema_config_index_period }}
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: {{ loki_storage_config_boltdb_shipper_active_index_directory }}
+    cache_location: {{ loki_storage_config_boltdb_shipper_cache_location }}
+    shared_store: {{ loki_storage_config_boltdb_shipper_shared_store }}
+  filesystem:
+    directory: {{ loki_storage_config_filesystem_directory }}
+
+limits_config:
+  enforce_metric_name: {{ loki_limits_config_enforce_metric_name }}
+  reject_old_samples: {{ loki_limits_config_reject_old_samples }}
+  reject_old_samples_max_age: {{ loki_limits_config_reject_old_samples_max_age }}
+
+chunk_store_config:
+  max_look_back_period: {{ loki_chunk_store_config_max_look_back_period }}
+
+table_manager:
+  retention_deletes_enabled: {{ loki_table_manager_retention_deletes_enable }}
+  retention_period: {{ loki_table_manager_retention_period }}
+
+compactor:
+  working_directory: {{ loki_compactor_working_directory }}
+  shared_store: {{ loki_compactor_shared_store }}

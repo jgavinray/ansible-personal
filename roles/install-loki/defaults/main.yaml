@@ -1,0 +1,58 @@
+---
+# Single node loki deployment - meant to be stupid simple and not redundant
+
+# Loki Version specific details
+loki_version: 2.9.4
+loki_platform: linux
+loki_architecture: arm64
+loki_binary_sha: "sha256:73eb7159283b3258f943f0b5f363973e89613f85e287bcf4ae5852bd73616ab6"
+
+# https://github.com/grafana/loki/releases/download/v{{ loki_version}}/loki-{{ loki_platform }}-{{ loki_architecture }}.zip
+
+loki_user: "loki"
+loki_install_directory: "/opt/loki"
+
+# Global Loki Configs
+loki_auth_enabled: false
+
+# Loki server configuration
+loki_server_http_listen_post: 3100
+loki_server_grpc_listen_post: 9096
+
+# Loki ingester configuration
+loki_ingester_lifecycler_address: 127.0.0.1
+loki_ingester_lifecycler_ring_kvstore_store: "inmemory"
+loki_ingester_lifecycler_ring_replication_factor: 1
+loki_ingester_chunk_idle_period: "15m"
+loki_ingester_chunk_retain_period: "30s"
+loki_ingester_max_transfer_retries: 0
+
+# Loki schema configuration
+loki_schema_config_configs_from: "2020-10-24"
+loki_schema_config_configs_store: "boltdb-shipper"
+loki_schema_config_object_store: "filesystem"
+loki_schema_config_schema: "v11"
+loki_schema_config_index_prefix: "index_"
+loki_schema_config_index_period: "24h"
+
+# Loki storage configuration
+loki_storage_config_boltdb_shipper_active_index_directory: "/tmp/loki/index"
+loki_storage_config_boltdb_shipper_cache_location: "/tmp/loki/index_cache"
+loki_storage_config_boltdb_shipper_shared_store: "filesystem"
+loki_storage_config_filesystem_directory: "/tmp/loki/chunks"
+
+# Loki limits configuration
+loki_limits_config_enforce_metric_name: false
+loki_limits_config_reject_old_samples: true
+loki_limits_config_reject_old_samples_max_age: "164h"
+
+# Loki chunks configuration
+loki_chunk_store_config_max_look_back_period: "0s"
+
+# Loki table manager configuration
+loki_table_manager_retention_deletes_enable: false
+loki_table_manager_retention_period: "0s"
+
+# Loki compactor configuration
+loki_compactor_working_directory: "/tmp/loki/compactor"
+loki_compactor_shared_store: "filesystem"
