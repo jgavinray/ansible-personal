@@ -7,7 +7,7 @@ apturl==0.5.2
 attrs==19.3.0
 bcrypt==3.1.7
 beautifulsoup4==4.8.2
-black==19.3b0
+black==24.3.0
 blinker==1.4
 bottle==0.12.20
 Brlapi==0.7.0
