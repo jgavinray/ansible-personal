@@ -1,0 +1,28 @@
+---
+# Kubernetes version to install
+kubernetes_version: "v1.31.3"
+kubernetes_release_url: "https://dl.k8s.io/release"
+
+# Installation paths
+k8s_bin_path: "/usr/local/bin"
+k8s_config_path: "/etc/kubernetes"
+k8s_lib_path: "/var/lib/kubelet"
+
+# Binaries to download
+k8s_binaries:
+  - kubeadm
+  - kubelet
+  - kubectl
+
+# Architecture mapping: Ansible architecture -> Kubernetes architecture
+k8s_arch_mapping:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: arm
+  armv6l: arm
+  ppc64le: ppc64le
+  s390x: s390x
+
+# Systemd configuration
+kubelet_service_path: "/etc/systemd/system/kubelet.service"
+kubelet_service_drop_in_path: "/etc/systemd/system/kubelet.service.d"

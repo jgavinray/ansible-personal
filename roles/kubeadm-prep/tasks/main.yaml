@@ -1,42 +1,28 @@
 ---
-- name: "Install kubelet (1/8)"
-  apt:
-    name: kubelet=1.21.5-00
-    state: present
+# Note: kubelet, kubectl, and kubeadm binaries are installed by the k8s-binaries role
 
-- name: "Install kubectl (2/8)"
-  apt:
-    name: kubectl=1.21.5-00
-    state: present
-
-- name: "Install kubeadm (3/8)"
-  apt:
-    name: kubeadm=1.21.5-00
-    state: present
-
-
-- name: "Adjust swapiness for k8s (4/8)"
+- name: "Adjust swapiness for k8s (1/5)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'vm.swappiness = 0'
     state: present
     create: yes
 
-- name: "Configure vm overcommit_memory (5/8)"
+- name: "Configure vm overcommit_memory (2/5)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'vm.overcommit_memory = 1'
     state: present
     create: yes
 
-- name: "Add netbridge config ip4 (6/8)"
+- name: "Add netbridge config ip4 (3/5)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'net.bridge.bridge-nf-call-iptables = 1'
     state: present
     create: yes
 
-- name: "Increase net ipv4 tcp_max_syn_backlog (7/8)"
+- name: "Increase net ipv4 tcp_max_syn_backlog (4/5)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'net.ipv4.tcp_max_syn_backlog=2621440'
@@ -44,9 +30,9 @@
     create: yes
 
 
-- name: "Start and enable kubelet (8/8)"
-  systemd:
-    state: started
-    daemon_reload: yes
-    name: kubelet
-    enabled: yes
+- name: "Apply sysctl configuration (5/5)"
+  command: sysctl --system
+  changed_when: false
+
+# Note: kubelet is enabled but not started by the k8s-binaries role
+# kubeadm init/join will start kubelet when the node joins the cluster

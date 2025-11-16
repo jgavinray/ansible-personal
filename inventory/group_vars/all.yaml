@@ -2,8 +2,8 @@
 users:
   - jgavinray
 
-kubernetes_version: v1.21.0
-kubeadm_version: 1.21.0
+kubernetes_version: v1.31.3
+kubeadm_version: 1.31.3
 
 kubernetes_loadbalanced_api_dns: k8s-api01.domain.local
 kubernetes_cluster_label: jgavinray.cloud

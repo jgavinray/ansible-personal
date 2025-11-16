@@ -1,0 +1,8 @@
+---
+- name: restart kubelet
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+  # Only restart if kubelet is already running (i.e., after kubeadm init/join)
+  when: ansible_facts.services['kubelet.service'] is defined and ansible_facts.services['kubelet.service'].state == 'running'

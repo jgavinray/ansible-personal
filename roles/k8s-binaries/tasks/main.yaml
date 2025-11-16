@@ -1,0 +1,71 @@
+---
+- name: "Detect system architecture"
+  set_fact:
+    k8s_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('') }}"
+
+- name: "Validate supported architecture"
+  assert:
+    that:
+      - k8s_arch != ''
+      - ansible_architecture in k8s_arch_mapping.keys()
+    fail_msg: "Unsupported architecture: {{ ansible_architecture }}. Supported architectures: {{ k8s_arch_mapping.keys() | list }}"
+    success_msg: "Detected architecture: {{ ansible_architecture }} -> Kubernetes arch: {{ k8s_arch }}"
+
+- name: "Create Kubernetes directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ k8s_config_path }}"
+    - "{{ k8s_lib_path }}"
+    - "{{ kubelet_service_drop_in_path }}"
+
+- name: "Download Kubernetes binaries for {{ k8s_arch }}"
+  get_url:
+    url: "{{ kubernetes_release_url }}/{{ kubernetes_version }}/bin/linux/{{ k8s_arch }}/{{ item }}"
+    dest: "{{ k8s_bin_path }}/{{ item }}"
+    mode: '0755'
+    owner: root
+    group: root
+  loop: "{{ k8s_binaries }}"
+  register: k8s_binary_download
+
+- name: "Install kubelet systemd service file"
+  template:
+    src: kubelet.service.j2
+    dest: "{{ kubelet_service_path }}"
+    mode: '0644'
+    owner: root
+    group: root
+  notify: restart kubelet
+  register: kubelet_service_file
+
+- name: "Install kubelet kubeadm drop-in configuration"
+  template:
+    src: 10-kubeadm.conf.j2
+    dest: "{{ kubelet_service_drop_in_path }}/10-kubeadm.conf"
+    mode: '0644'
+    owner: root
+    group: root
+  notify: restart kubelet
+  register: kubelet_dropin_file
+
+- name: "Create kubelet default environment file"
+  copy:
+    content: ""
+    dest: /etc/default/kubelet
+    force: no
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: "Reload systemd daemon"
+  systemd:
+    daemon_reload: yes
+  when: kubelet_service_file.changed or kubelet_dropin_file.changed
+
+- name: "Enable kubelet service (don't start yet - kubeadm will start it)"
+  systemd:
+    name: kubelet
+    enabled: yes
