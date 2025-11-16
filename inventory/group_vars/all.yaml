@@ -10,7 +10,7 @@ kubernetes_cluster_label: jgavinray.cloud
 
 # Kubernetes Kubeadm Cluster Configuration
 kubeadm_config_options:
-    apiVersion: kubeadm.k8s.io/v1beta2
+    apiVersion: kubeadm.k8s.io/v1beta3
     kind: ClusterConfiguration
     kubernetesVersion: "{{ kubernetes_version }}"
     controlPlaneEndpoint: "192.168.0.25"

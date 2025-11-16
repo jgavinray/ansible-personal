@@ -7,4 +7,4 @@
     force: yes
 
 - name: "Apply Cilium Manifest (2/2)"
-  shell: kubectl apply -f /tmp/cilium.yaml
+  shell: /usr/local/bin/kubectl apply -f /tmp/cilium.yaml

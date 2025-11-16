@@ -17,7 +17,7 @@
     mode: 0644
 
 - name: "Run kubeadm init with config yaml (2/10)"
-  shell: kubeadm init --config=/tmp/kubeadm-config.yaml
+  shell: /usr/local/bin/kubeadm init --config=/tmp/kubeadm-config.yaml
   register: rslt
   ignore_errors: yes
 

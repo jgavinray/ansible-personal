@@ -1,24 +1,41 @@
 ---
-- name: "Run kubeadm reset (1/5)"
-  shell: kubeadm reset -f
+- name: "Run kubeadm reset (1/6)"
+  shell: /usr/local/bin/kubeadm reset -f
   ignore_errors: yes
 
-- name: "Remove kubelet (2/5)"
-  apt:
+- name: "Stop kubelet service (2/6)"
+  systemd:
     name: kubelet
-    state: absent
+    state: stopped
+    enabled: no
+  ignore_errors: yes
 
-- name: "Remove kubectl (3/5)"
-  apt:
-    name: kubectl
+- name: "Remove Kubernetes binaries (3/6)"
+  file:
+    path: "/usr/local/bin/{{ item }}"
     state: absent
+  loop:
+    - kubeadm
+    - kubelet
+    - kubectl
 
-- name: "Remove kubeadm (4/5)"
-  apt:
-    name: kubeadm
+- name: "Remove kubelet systemd files (4/6)"
+  file:
+    path: "{{ item }}"
     state: absent
+  loop:
+    - /etc/systemd/system/kubelet.service
+    - /etc/systemd/system/kubelet.service.d
 
-- name: "Remove k8s directories (2/5)"
+- name: "Reload systemd daemon (5/6)"
+  systemd:
+    daemon_reload: yes
+
+- name: "Remove k8s directories (6/6)"
   ansible.builtin.file:
-    path: /etc/kubernetes
+    path: "{{ item }}"
     state: absent
+  loop:
+    - /etc/kubernetes
+    - /var/lib/kubelet
+    - /etc/default/kubelet
