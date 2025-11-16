@@ -1,0 +1,30 @@
+---
+# Kubernetes Cluster Upgrade Playbook
+#
+# This playbook performs a rolling upgrade of a Kubernetes cluster
+# following the official upgrade procedure:
+#   1. Preflight checks (version validation, cluster health)
+#   2. Upgrade first control plane node (kubeadm upgrade apply)
+#   3. Upgrade additional control plane nodes (kubeadm upgrade node)
+#   4. Upgrade worker nodes (kubeadm upgrade node)
+#   5. Verify upgrade success
+#
+# IMPORTANT: This playbook is for upgrades only, not fresh installations.
+#            Use install-k8s.yaml for new cluster deployments.
+#
+# Usage:
+#   1. Update kubernetes_version in inventory/group_vars/all.yaml
+#   2. Run: ansible-playbook playbooks/k8s/upgrade-k8s.yaml
+#
+# Requirements:
+#   - Cluster must already exist
+#   - Can only upgrade one minor version at a time (e.g., 1.30 → 1.31)
+#   - All nodes must be Ready before starting
+#
+# See: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+
+- import_playbook: upgrade-preflight.yaml
+- import_playbook: upgrade-control-plane-first.yaml
+- import_playbook: upgrade-control-plane-additional.yaml
+- import_playbook: upgrade-workers.yaml
+- import_playbook: upgrade-verify.yaml

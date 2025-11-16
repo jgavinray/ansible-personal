@@ -1,0 +1,19 @@
+---
+- hosts: k8s_workers
+  become: yes
+  gather_facts: yes
+  serial: "{{ worker_upgrade_strategy == 'serial' | ternary(1, '100%') }}"
+  vars:
+    k8s_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('amd64') }}"
+    k8s_arch_mapping:
+      x86_64: amd64
+      aarch64: arm64
+      armv7l: arm
+      armv6l: arm
+      ppc64le: ppc64le
+      s390x: s390x
+    kubernetes_release_url: "https://dl.k8s.io/release"
+    k8s_bin_path: "/usr/local/bin"
+    worker_upgrade_strategy: serial
+  roles:
+    - upgrade-workers

@@ -1,0 +1,80 @@
+---
+- name: "Check if cluster exists (1/6)"
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: cluster_exists
+
+- name: "Fail if cluster does not exist (2/6)"
+  fail:
+    msg: "No Kubernetes cluster found. Use install-k8s.yaml for fresh installations."
+  when: not cluster_exists.stat.exists
+
+- name: "Get current cluster version (3/6)"
+  shell: /usr/local/bin/kubectl version -o json | grep -o '"gitVersion":"v[0-9.]*"' | head -1 | cut -d'"' -f4
+  register: current_version_output
+  changed_when: false
+  failed_when: false
+
+- name: "Set current version fact (4/6)"
+  set_fact:
+    current_k8s_version: "{{ current_version_output.stdout | default('unknown') }}"
+
+- name: "Display version information (5/6)"
+  debug:
+    msg:
+      - "Current cluster version: {{ current_k8s_version }}"
+      - "Target version: {{ kubernetes_version }}"
+
+- name: "Validate version upgrade path (6/6)"
+  block:
+    - name: "Extract version components"
+      set_fact:
+        current_major: "{{ current_k8s_version | regex_replace('^v([0-9]+)\\..*', '\\1') }}"
+        current_minor: "{{ current_k8s_version | regex_replace('^v[0-9]+\\.([0-9]+).*', '\\1') }}"
+        target_major: "{{ kubernetes_version | regex_replace('^v([0-9]+)\\..*', '\\1') }}"
+        target_minor: "{{ kubernetes_version | regex_replace('^v[0-9]+\\.([0-9]+).*', '\\1') }}"
+
+    - name: "Calculate version difference"
+      set_fact:
+        version_diff: "{{ (target_minor | int) - (current_minor | int) }}"
+
+    - name: "Check if already at target version"
+      debug:
+        msg: "Cluster is already at version {{ kubernetes_version }}"
+      when: current_k8s_version == kubernetes_version
+
+    - name: "Fail if trying to downgrade"
+      fail:
+        msg: "Downgrade detected ({{ current_k8s_version }} -> {{ kubernetes_version }}). Downgrades are not supported."
+      when:
+        - current_k8s_version != kubernetes_version
+        - version_diff | int < 0
+
+    - name: "Fail if skipping versions"
+      fail:
+        msg: "Cannot skip versions ({{ current_k8s_version }} -> {{ kubernetes_version }}). Upgrade one minor version at a time."
+      when:
+        - current_k8s_version != kubernetes_version
+        - version_diff | int > max_version_jump
+
+    - name: "Confirm upgrade is safe"
+      debug:
+        msg: "✓ Upgrade path validated: {{ current_k8s_version }} -> {{ kubernetes_version }}"
+      when:
+        - current_k8s_version != kubernetes_version
+        - version_diff | int >= 0
+        - version_diff | int <= max_version_jump
+
+- name: "Check cluster health (7/7)"
+  shell: /usr/local/bin/kubectl get nodes -o json | grep -c '"type":"Ready","status":"True"'
+  register: ready_nodes
+  changed_when: false
+  failed_when: false
+  when: current_k8s_version != kubernetes_version
+
+- name: "Warn if not all nodes ready"
+  debug:
+    msg: "WARNING: Not all nodes are ready. Proceeding anyway, but this may cause issues."
+  when:
+    - current_k8s_version != kubernetes_version
+    - ready_nodes.stdout | default('0') | int < (groups['k8s'] | length)

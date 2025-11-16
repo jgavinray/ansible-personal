@@ -1,0 +1,6 @@
+---
+# Maximum allowed minor version jump (Kubernetes best practice)
+max_version_jump: 1
+
+# Minimum cluster health requirements
+min_ready_nodes_percent: 100

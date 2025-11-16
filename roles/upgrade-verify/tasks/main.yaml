@@ -1,0 +1,69 @@
+---
+- name: "Get all nodes status (1/6)"
+  shell: /usr/local/bin/kubectl get nodes -o wide
+  register: nodes_status
+  changed_when: false
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  run_once: true
+
+- name: "Display nodes status (2/6)"
+  debug:
+    var: nodes_status.stdout_lines
+  run_once: true
+
+- name: "Verify all nodes are Ready (3/6)"
+  shell: /usr/local/bin/kubectl get nodes --no-headers | grep -v " Ready" | awk '{print $1}' || true
+  register: not_ready_nodes
+  changed_when: false
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  run_once: true
+
+- name: "Check for not ready nodes (4/6)"
+  fail:
+    msg: "The following nodes are not Ready: {{ not_ready_nodes.stdout_lines }}"
+  when: not_ready_nodes.stdout != ""
+  run_once: true
+
+- name: "Verify all nodes at target version (5/6)"
+  shell: /usr/local/bin/kubectl get nodes --no-headers -o custom-columns=NAME:.metadata.name,VERSION:.status.nodeInfo.kubeletVersion | grep -v "{{ kubernetes_version }}" | awk '{print $1 " (" $2 ")"}' || true
+  register: version_mismatch_nodes
+  changed_when: false
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  run_once: true
+
+- name: "Check for version mismatches (6/6)"
+  fail:
+    msg: "The following nodes are not at {{ kubernetes_version }}: {{ version_mismatch_nodes.stdout_lines }}"
+  when: version_mismatch_nodes.stdout != ""
+  run_once: true
+
+- name: "Get cluster component status (7/7)"
+  shell: /usr/local/bin/kubectl get componentstatuses
+  register: component_status
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  run_once: true
+
+- name: "Display component status (8/8)"
+  debug:
+    var: component_status.stdout_lines
+  run_once: true
+  when: component_status.rc == 0
+
+- name: "Display upgrade success summary (9/9)"
+  debug:
+    msg:
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║        Kubernetes Upgrade Completed Successfully      ║"
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""
+      - "✓ All nodes upgraded to {{ kubernetes_version }}"
+      - "✓ All nodes are Ready"
+      - "✓ Cluster health verified"
+      - ""
+      - "Next steps:"
+      - "  - Monitor cluster for any issues"
+      - "  - Test critical workloads"
+      - "  - Review Kubernetes {{ kubernetes_version }} release notes"
+  run_once: true

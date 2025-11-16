@@ -1,0 +1,90 @@
+---
+- name: "Upgrade kubeadm binary on first control plane (1/8)"
+  get_url:
+    url: "{{ kubernetes_release_url }}/{{ kubernetes_version }}/bin/linux/{{ k8s_arch }}/kubeadm"
+    dest: "{{ k8s_bin_path }}/kubeadm"
+    mode: '0755'
+    owner: root
+    group: root
+    force: yes
+
+- name: "Verify kubeadm version (2/8)"
+  shell: /usr/local/bin/kubeadm version -o short
+  register: kubeadm_version_check
+  changed_when: false
+
+- name: "Display kubeadm version (3/8)"
+  debug:
+    msg: "Kubeadm upgraded to: {{ kubeadm_version_check.stdout }}"
+
+- name: "Run kubeadm upgrade plan (4/8)"
+  shell: /usr/local/bin/kubeadm upgrade plan
+  register: upgrade_plan
+  changed_when: false
+  failed_when: false
+
+- name: "Display upgrade plan (5/8)"
+  debug:
+    var: upgrade_plan.stdout_lines
+
+- name: "Apply kubeadm upgrade (6/8)"
+  shell: /usr/local/bin/kubeadm upgrade apply {{ kubernetes_version }} -y
+  register: upgrade_apply
+  async: 600
+  poll: 10
+
+- name: "Display upgrade apply output (7/8)"
+  debug:
+    var: upgrade_apply.stdout_lines
+
+- name: "Drain first control plane node (8/8)"
+  shell: |
+    /usr/local/bin/kubectl drain {{ ansible_hostname }} \
+      --ignore-daemonsets \
+      --delete-emptydir-data \
+      --force \
+      --timeout=300s
+  register: drain_result
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  changed_when: true
+  failed_when: false
+
+- name: "Upgrade kubelet and kubectl binaries (9/9)"
+  get_url:
+    url: "{{ kubernetes_release_url }}/{{ kubernetes_version }}/bin/linux/{{ k8s_arch }}/{{ item }}"
+    dest: "{{ k8s_bin_path }}/{{ item }}"
+    mode: '0755'
+    owner: root
+    group: root
+    force: yes
+  loop:
+    - kubelet
+    - kubectl
+
+- name: "Restart kubelet (10/10)"
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+
+- name: "Wait for kubelet to be ready (11/11)"
+  shell: /usr/local/bin/kubectl get node {{ ansible_hostname }} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+  register: node_status
+  until: node_status.stdout == "True"
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: "Uncordon first control plane node (12/12)"
+  shell: /usr/local/bin/kubectl uncordon {{ ansible_hostname }}
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  changed_when: true
+
+- name: "Display node status (13/13)"
+  shell: /usr/local/bin/kubectl get nodes
+  register: nodes_status
+  changed_when: false
+
+- name: "Show upgraded nodes (14/14)"
+  debug:
+    var: nodes_status.stdout_lines

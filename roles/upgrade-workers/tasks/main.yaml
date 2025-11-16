@@ -1,0 +1,77 @@
+---
+- name: "Upgrade kubeadm binary on worker (1/9)"
+  get_url:
+    url: "{{ kubernetes_release_url }}/{{ kubernetes_version }}/bin/linux/{{ k8s_arch }}/kubeadm"
+    dest: "{{ k8s_bin_path }}/kubeadm"
+    mode: '0755'
+    owner: root
+    group: root
+    force: yes
+
+- name: "Verify kubeadm version (2/9)"
+  shell: /usr/local/bin/kubeadm version -o short
+  register: kubeadm_version_check
+  changed_when: false
+
+- name: "Display kubeadm version (3/9)"
+  debug:
+    msg: "Kubeadm upgraded to: {{ kubeadm_version_check.stdout }}"
+
+- name: "Drain worker node (4/9)"
+  shell: |
+    /usr/local/bin/kubectl drain {{ ansible_hostname }} \
+      --ignore-daemonsets \
+      --delete-emptydir-data \
+      --force \
+      --timeout=300s
+  register: drain_result
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  changed_when: true
+  failed_when: false
+
+- name: "Run kubeadm upgrade node on worker (5/9)"
+  shell: /usr/local/bin/kubeadm upgrade node
+  register: upgrade_node
+  async: 300
+  poll: 10
+
+- name: "Display upgrade node output (6/9)"
+  debug:
+    var: upgrade_node.stdout_lines
+
+- name: "Upgrade kubelet and kubectl binaries (7/9)"
+  get_url:
+    url: "{{ kubernetes_release_url }}/{{ kubernetes_version }}/bin/linux/{{ k8s_arch }}/{{ item }}"
+    dest: "{{ k8s_bin_path }}/{{ item }}"
+    mode: '0755'
+    owner: root
+    group: root
+    force: yes
+  loop:
+    - kubelet
+    - kubectl
+
+- name: "Restart kubelet (8/9)"
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+
+- name: "Wait for kubelet to be ready (9/9)"
+  shell: /usr/local/bin/kubectl get node {{ ansible_hostname }} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+  register: node_status
+  until: node_status.stdout == "True"
+  retries: 30
+  delay: 10
+  changed_when: false
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+
+- name: "Uncordon worker node (10/10)"
+  shell: /usr/local/bin/kubectl uncordon {{ ansible_hostname }}
+  delegate_to: "{{ groups['k8s_leaders'][0] }}"
+  changed_when: true
+
+- name: "Delay between worker upgrades (11/11)"
+  pause:
+    seconds: "{{ worker_upgrade_delay }}"
+  when: worker_upgrade_strategy == 'serial'

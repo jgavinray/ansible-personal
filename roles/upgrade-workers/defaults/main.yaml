@@ -1,0 +1,8 @@
+---
+# Worker upgrade strategy
+# serial: upgrade one worker at a time (safest, slowest)
+# parallel: upgrade all workers at once (fastest, riskiest)
+worker_upgrade_strategy: serial
+
+# For serial upgrades, delay between workers (seconds)
+worker_upgrade_delay: 30
