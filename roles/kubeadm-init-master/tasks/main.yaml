@@ -1,5 +1,15 @@
 ---
-- name: "Creates opt/kubernetes directory (-1/10)"
+- name: "Check if cluster is already initialized (-2/10)"
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: cluster_initialized
+
+- name: "Display skip message if cluster already initialized (-1/10)"
+  debug:
+    msg: "Cluster already initialized, skipping kubeadm init"
+  when: cluster_initialized.stat.exists
+
+- name: "Creates opt/kubernetes directory (0/10)"
   file:
     path: /opt/kubernetes
     state: directory
@@ -19,10 +29,11 @@
 - name: "Run kubeadm init with config yaml (2/10)"
   shell: /usr/local/bin/kubeadm init --config=/tmp/kubeadm-config.yaml
   register: rslt
-  ignore_errors: yes
+  when: not cluster_initialized.stat.exists
 
 - name: "Store init output (3/10)"
   action: copy content="{{ rslt.stdout }}" dest="/etc/kubernetes/kubeadm-init.stdout"
+  when: not cluster_initialized.stat.exists and rslt is defined and rslt.stdout is defined
 
 - name: "Create user .kube folder (4/10)"
   file:
