@@ -1,0 +1,11 @@
+cilium_arch_mapping:
+  x86_64: amd64
+  aarch64: arm64
+
+cilium_chart_version: v1.18.4
+
+cilium_cli_version: v0.18.8
+cilium_cli_checksums:
+  amd64: sha256:422940f0b7eb6eabc1e126945d1772e3f824c3f4f9fbb0df0dbbf00a271311ba
+  arm64: sha256:44e6dd188336b9168986945c99f8e0882ec4e54a4b6422d44d8e36ec449ba929
+cilium_cli_dest_dir: /usr/local/bin
