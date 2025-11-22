@@ -1,10 +1,51 @@
 ---
 
-- name: "Copy Cilium Manifest to Node (1/2)"
-  template:
-    src: cilium.yaml
-    dest: /tmp/cilium.yaml
-    force: yes
+- name: "Detect system architecture"
+  set_fact:
+    cilium_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('') }}"
 
-- name: "Apply Cilium Manifest (2/2)"
-  shell: /usr/local/bin/kubectl apply -f /tmp/cilium.yaml
+- name: 'assert that the architecture is supported'
+  assert:
+    that:
+      - 'cilium_arch != ""'
+    fail_msg: "Architecture {{ cilium_arch }} not supported by Cilium"
+    success_msg: "Architecture is {{ cilium_arch }}"
+
+- name: 'install git'
+  package:
+    name: git
+    state: present
+
+# see https://docs.cilium.io/en/latest/installation/k0s/#install-cilium
+- name: 'clone cilium repository'
+  git:
+    repo: https://github.com/cilium/cilium.git
+    dest: '/tmp/cilium-git'
+    depth: 1
+    version: "{{ cilium_chart_version }}"
+
+- name: 'retrieve cilium CLI binary'
+  get_url:
+    url: 'https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_version }}/cilium-linux-{{ cilium_arch }}.tar.gz'
+    dest: /tmp/cilium.tar.gz
+    checksum: '{{ cilium_cli_checksums[cilium_arch] }}'
+  register: cilium_cli_tar_path
+
+- name: 'extract cilium CLI tar file'
+  unarchive:
+    src: '{{ cilium_cli_tar_path.dest }}'
+    dest: '{{ cilium_cli_tar_path.dest }}-extracted'
+  register: cilium_cli_tmp_path
+
+- name: 'copy cilium CLI to system'
+  copy:
+    src: '{{ cilium_cli_tmp_path.dest }}/cilium'
+    dest: '{{ cilium_cli_dest_dir }}/cilium'
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: 'apply cilium manifests'
+  shell: '{{ cilium_cli_dest_dir }}/cilium install --chart-directory install/kubernetes/cilium'
+  args:
+    chdir: /tmp/cilium-git
