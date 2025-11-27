@@ -18,6 +18,7 @@ k8s_binaries:
 k8s_arch_mapping:
   x86_64: amd64
   aarch64: arm64
+  arm64: arm64
   armv7l: arm
   armv6l: arm
   ppc64le: ppc64le

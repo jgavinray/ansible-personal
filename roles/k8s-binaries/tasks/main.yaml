@@ -1,15 +1,19 @@
 ---
 - name: "Detect system architecture"
   set_fact:
-    k8s_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('') }}"
+    host_arch: "{{ ansible_facts['architecture'] }}"
+    k8s_arch: "{{ k8s_arch_mapping[ansible_facts['architecture']] | default('') }}"
 
 - name: "Validate supported architecture"
   assert:
     that:
       - k8s_arch != ''
-      - ansible_architecture in k8s_arch_mapping.keys()
-    fail_msg: "Unsupported architecture: {{ ansible_architecture }}. Supported architectures: {{ k8s_arch_mapping.keys() | list }}"
-    success_msg: "Detected architecture: {{ ansible_architecture }} -> Kubernetes arch: {{ k8s_arch }}"
+      - host_arch in k8s_arch_mapping.keys()
+    fail_msg: >-
+      Unsupported architecture: {{ host_arch }}.
+      Supported architectures: {{ k8s_arch_mapping.keys() | list }}
+    success_msg: >-
+      Detected architecture: {{ host_arch }} -> Kubernetes arch: {{ k8s_arch }}
 
 - name: "Create Kubernetes directories"
   file:

@@ -1,28 +1,36 @@
 ---
 # Note: kubelet, kubectl, and kubeadm binaries are installed by the k8s-binaries role
 
-- name: "Adjust swapiness for k8s (1/5)"
+- name: "Install required system packages for kubeadm (0/6)"
+  apt:
+    name:
+      - conntrack
+      - ethtool
+    state: present
+    update_cache: yes
+
+- name: "Adjust swapiness for k8s (1/6)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'vm.swappiness = 0'
     state: present
     create: yes
 
-- name: "Configure vm overcommit_memory (2/5)"
+- name: "Configure vm overcommit_memory (2/6)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'vm.overcommit_memory = 1'
     state: present
     create: yes
 
-- name: "Add netbridge config ip4 (3/5)"
+- name: "Add netbridge config ip4 (3/6)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'net.bridge.bridge-nf-call-iptables = 1'
     state: present
     create: yes
 
-- name: "Increase net ipv4 tcp_max_syn_backlog (4/5)"
+- name: "Increase net ipv4 tcp_max_syn_backlog (4/6)"
   lineinfile:
     path: /etc/sysctl.d/k8s.conf
     line: 'net.ipv4.tcp_max_syn_backlog=2621440'
@@ -30,7 +38,7 @@
     create: yes
 
 
-- name: "Apply sysctl configuration (5/5)"
+- name: "Apply sysctl configuration (5/6)"
   command: sysctl --system
   changed_when: false
 
