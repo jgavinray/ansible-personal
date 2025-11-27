@@ -11,45 +11,21 @@ k8s:
       ansible_host: 192.168.0.28
     ubuntu05:
       ansible_host: 192.168.0.29
-    ubuntu06:
-      ansible_host: 192.168.0.30
-    rook01:
-      ansible_host: 192.168.0.40
-    rook02:
-      ansible_host: 192.168.0.41
-    rook03:
-      ansible_host: 192.168.0.42
-    hyper01:
-      ansible_host: 192.168.0.43
-    hyper02:
-      ansible_host: 192.168.0.44
-    hyper03:
-      ansible_host: 192.168.0.45
+#    ubuntu06:
+#      ansible_host: 192.168.0.30
 k8s_leaders:
   hosts:
     ubuntu01:
       ansible_host: 192.168.0.25
+k8s_followers:
+  hosts:
     ubuntu02:
       ansible_host: 192.168.0.26
     ubuntu03:
       ansible_host: 192.168.0.27
-k8s_followers:
-  hosts:
     ubuntu04:
       ansible_host: 192.168.0.28
     ubuntu05:
       ansible_host: 192.168.0.29
-    ubuntu06:
-      ansible_host: 192.168.0.30
-    rook01:
-      ansible_host: 192.168.0.40
-    rook02:
-      ansible_host: 192.168.0.41
-    rook03:
-      ansible_host: 192.168.0.42
-    hyper01:
-      ansible_host: 192.168.0.43
-    hyper02:
-      ansible_host: 192.168.0.44
-    hyper03:
-      ansible_host: 192.168.0.45
+#    ubuntu06:
+#      ansible_host: 192.168.0.30
