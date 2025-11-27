@@ -31,7 +31,7 @@
   systemd:
     daemon_reload: yes
 
-- name: "Remove k8s directories (6/6)"
+- name: "Remove k8s directories (6/7)"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -39,3 +39,8 @@
     - /etc/kubernetes
     - /var/lib/kubelet
     - /etc/default/kubelet
+
+- name: "Remove etcd data directory (7/7)"
+  ansible.builtin.file:
+    path: /var/lib/etcd
+    state: absent

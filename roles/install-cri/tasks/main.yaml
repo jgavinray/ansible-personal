@@ -1,20 +1,47 @@
 ---
-- name: "Install Docker (1/2)"
+- name: "Check if Docker is already installed (1/4)"
+  command: docker --version
+  register: docker_check
+  failed_when: false
+  changed_when: false
+
+- name: "Install Docker from repos if not present (2/4)"
   apt:
     name: docker.io
     state: present
-  when: ansible_facts['architecture'] not in ['aarch64', 'arm64']
+  when: docker_check.rc != 0
 
-- name: "Install Docker Daemon Config (2/3)"
+- name: "Install Docker Daemon Config (3/7)"
   template:
     src: daemon.json
     dest: /etc/docker/daemon.json
-  when: ansible_facts['architecture'] not in ['aarch64', 'arm64']
 
-- name: "Start and enable Docker (3/3)"
+- name: "Check if containerd config exists (4/7)"
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config
+
+- name: "Enable CRI plugin in containerd if disabled (5/7)"
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: '^(disabled_plugins = \["cri"\])$'
+    replace: |
+      # Commented by Ansible to enable Kubernetes CRI support
+      # Original NVIDIA configuration disabled CRI plugin for Docker integration
+      # Enabling this allows kubeadm to use containerd as container runtime
+      #\1
+  when: containerd_config.stat.exists
+  register: containerd_cri_fixed
+
+- name: "Restart containerd if CRI was enabled (6/7)"
+  systemd:
+    name: containerd
+    state: restarted
+  when: containerd_cri_fixed.changed
+
+- name: "Start and enable Docker (7/7)"
   systemd:
     state: started
     daemon_reload: yes
     name: docker
     enabled: yes
-  when: ansible_facts['architecture'] not in ['aarch64', 'arm64']
