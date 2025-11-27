@@ -2,7 +2,7 @@
 
 - name: "Detect system architecture"
   set_fact:
-    cilium_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('') }}"
+    cilium_arch: "{{ cilium_arch_mapping[ansible_facts['architecture']] | default('') }}"
 
 - name: 'assert that the architecture is supported'
   assert:
@@ -31,10 +31,17 @@
     checksum: '{{ cilium_cli_checksums[cilium_arch] }}'
   register: cilium_cli_tar_path
 
+- name: 'create extraction directory'
+  file:
+    path: '{{ cilium_cli_tar_path.dest }}-extracted'
+    state: directory
+    mode: '0755'
+
 - name: 'extract cilium CLI tar file'
   unarchive:
     src: '{{ cilium_cli_tar_path.dest }}'
     dest: '{{ cilium_cli_tar_path.dest }}-extracted'
+    remote_src: true
   register: cilium_cli_tmp_path
 
 - name: 'copy cilium CLI to system'
@@ -44,6 +51,7 @@
     owner: root
     group: root
     mode: '0755'
+    remote_src: true
 
 - name: 'apply cilium manifests'
   shell: '{{ cilium_cli_dest_dir }}/cilium install --chart-directory install/kubernetes/cilium'

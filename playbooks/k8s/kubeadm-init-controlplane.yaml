@@ -2,4 +2,4 @@
   - ubuntu01
   become: yes
   roles:
-    - kubeadm-init-master
+    - kubeadm-init-controlplane

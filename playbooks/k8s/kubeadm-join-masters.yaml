@@ -1,6 +1,0 @@
-- hosts:
-    - ubuntu02
-    - ubuntu03
-  become: yes
-  roles:
-    - kubeadm-join-masters

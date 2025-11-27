@@ -90,3 +90,13 @@
     flat: yes
   with_items:
     - admin.conf
+
+- name: "Wait for API server to be ready (11/11)"
+  shell: /usr/local/bin/kubectl get --raw /healthz
+  register: api_health
+  until: api_health.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
