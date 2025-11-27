@@ -21,7 +21,18 @@
     path: /etc/containerd/config.toml
   register: containerd_config
 
-- name: "Enable CRI plugin in containerd if disabled (5/7)"
+- name: "Create containerd config directory (5/7)"
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: "Generate default containerd config if not present (6/7)"
+  shell: containerd config default > /etc/containerd/config.toml
+  args:
+    creates: /etc/containerd/config.toml
+
+- name: "Enable CRI plugin in containerd if disabled (7/7)"
   replace:
     path: /etc/containerd/config.toml
     regexp: '^(disabled_plugins = \["cri"\])$'
@@ -30,16 +41,22 @@
       # Original NVIDIA configuration disabled CRI plugin for Docker integration
       # Enabling this allows kubeadm to use containerd as container runtime
       #\1
-  when: containerd_config.stat.exists
   register: containerd_cri_fixed
 
-- name: "Restart containerd if CRI was enabled (6/7)"
+- name: "Enable SystemdCgroup in containerd for Kubernetes (8/7)"
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: '(\s+)SystemdCgroup = false'
+    replace: '\1SystemdCgroup = true'
+  register: containerd_systemd_cgroup_fixed
+
+- name: "Restart containerd if config was changed (9/7)"
   systemd:
     name: containerd
     state: restarted
-  when: containerd_cri_fixed.changed
+  when: containerd_cri_fixed.changed or containerd_systemd_cgroup_fixed.changed
 
-- name: "Start and enable Docker (7/7)"
+- name: "Start and enable Docker (10/7)"
   systemd:
     state: started
     daemon_reload: yes
