@@ -29,3 +29,7 @@ k8s_followers:
       ansible_host: 192.168.0.29
 #    ubuntu06:
 #      ansible_host: 192.168.0.30
+    jetson:
+      ansible_host: 192.168.0.32
+    spark:
+      ansible_host: 192.168.0.33
