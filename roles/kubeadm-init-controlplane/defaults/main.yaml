@@ -1,0 +1,6 @@
+---
+# Default user to own the kubeconfig for kubectl access
+kubeconfig_user: "{{ ansible_user_id }}"
+
+# Home directory for the kubeconfig user
+kubeconfig_user_home: "{{ '/root' if kubeconfig_user == 'root' else '/home/' ~ kubeconfig_user }}"

@@ -37,15 +37,15 @@
 
 - name: "Create user .kube folder (4/10)"
   file:
-    path: "~/.kube"
+    path: "{{ kubeconfig_user_home }}/.kube"
     state: directory
-    owner: "jgavinray"
+    owner: "{{ kubeconfig_user }}"
 
 - name: "Copy admin.conf to user .kube folder (5/10)"
   copy:
     src: /etc/kubernetes/admin.conf
-    dest: "~/.kube/config"
-    owner: "jgavinray"
+    dest: "{{ kubeconfig_user_home }}/.kube/config"
+    owner: "{{ kubeconfig_user }}"
     remote_src: yes
 
 - name: "Create root user .kube folder (6/10)"
