@@ -17,3 +17,8 @@ all:
       ansible_host: 192.168.0.32
     spark:
       ansible_host: 192.168.0.33
+# Loki/Mimir targets; uncomment a host so install-loki.yaml/install-mimir.yaml match something
+#monitoring:
+#  hosts:
+#    ubuntu01:
+#      ansible_host: 192.168.0.25

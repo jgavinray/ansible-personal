@@ -1,0 +1,23 @@
+---
+# Node Exporter version to install
+node_exporter_version: "1.2.2"
+node_exporter_release_url: "https://github.com/prometheus/node_exporter/releases/download"
+
+# Installation paths
+node_exporter_bin_path: "/usr/bin"
+node_exporter_service_path: "/etc/systemd/system/node_exporter.service"
+
+# Architecture mapping: Ansible architecture -> node_exporter release architecture
+node_exporter_arch_mapping:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armv7
+  armv6l: armv6
+
+# SHA256 checksums for node_exporter-1.2.2 tarballs
+# https://github.com/prometheus/node_exporter/releases/download/v1.2.2/sha256sums.txt
+node_exporter_checksums:
+  amd64: "344bd4c0bbd66ff78f14486ec48b89c248139cdd485e992583ea30e89e0e5390"
+  arm64: "b78464d8bd1b770a7f818d20c78410090f64a91b13577f1883dca1eec5aedbc9"
+  armv7: "2020c5ede7fe11c15951b4c2f3af7706cd7e205215fa9aacafec15e2f976d734"
+  armv6: "85b16cf96d6dfa3f453e70786469566de6a6a819587fa5a23d9f4ea9fd617409"

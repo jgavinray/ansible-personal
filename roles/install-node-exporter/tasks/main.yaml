@@ -1,29 +1,51 @@
+- name: "Detect system architecture"
+  ansible.builtin.set_fact:
+    host_arch: "{{ ansible_facts['architecture'] }}"
+    node_exporter_arch: "{{ node_exporter_arch_mapping[ansible_facts['architecture']] | default('') }}"
+
+- name: "Validate supported architecture"
+  ansible.builtin.assert:
+    that:
+      - node_exporter_arch != ''
+      - host_arch in node_exporter_arch_mapping.keys()
+    fail_msg: >-
+      Unsupported architecture: {{ host_arch }}.
+      Supported architectures: {{ node_exporter_arch_mapping.keys() | list }}
+    success_msg: >-
+      Detected architecture: {{ host_arch }} -> node_exporter arch: {{ node_exporter_arch }}
+
 - name: "Ensure group 'node_exporter' exists"
   ansible.builtin.group:
     name: node_exporter
     state: present
 
 - name: "Add the user 'node_exporter' with a specific uid and a primary group of 'node_exporter'"
-  user:
+  ansible.builtin.user:
     name: node_exporter
     group: node_exporter
 
-- name: "Download node exporter 1.2.2 file with check (sha256)"
-  get_url:
-    url: https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz
-    dest: /tmp/node_exporter-1.2.2.linux-amd64.tar.gz
-    checksum: sha256:344bd4c0bbd66ff78f14486ec48b89c248139cdd485e992583ea30e89e0e5390
+- name: "Download node exporter {{ node_exporter_version }} file with check (sha256)"
+  ansible.builtin.get_url:
+    url: "{{ node_exporter_release_url }}/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz"
+    dest: "/tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz"
+    checksum: "sha256:{{ node_exporter_checksums[node_exporter_arch] }}"
 
 - name: "Extract Node Exporter tar.gz"
-  ansible.builtin.shell: tar -xvf /tmp/node_exporter-1.2.2.linux-amd64.tar.gz -C /tmp
+  ansible.builtin.shell: tar -xvf /tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz -C /tmp
+  args:
+    creates: "/tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}/node_exporter"
 
 - name: "Copy node_exporter to /usr/bin"
-  ansible.builtin.shell: cp /tmp/node_exporter-1.2.2.linux-amd64/node_exporter /usr/bin/node_exporter
+  ansible.builtin.copy:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}/node_exporter"
+    dest: "{{ node_exporter_bin_path }}/node_exporter"
+    remote_src: yes
+    mode: '0755'
 
 - name: "Copy node_exporter systemd service (3/4)"
-  template:
+  ansible.builtin.template:
     src: node_exporter.service
-    dest: /etc/systemd/system/node_exporter.service
+    dest: "{{ node_exporter_service_path }}"
     force: yes
 
 - name: "Restart service node_exporter, also issue daemon-reload to pick up config changes"

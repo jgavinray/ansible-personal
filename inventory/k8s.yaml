@@ -37,3 +37,7 @@ k8s_followers:
       ansible_host: 192.168.0.33
     ubuntu06:
       ansible_host: 192.168.0.30
+# Non-control-plane nodes; targeted by the worker upgrade step
+k8s_workers:
+  children:
+    k8s_followers

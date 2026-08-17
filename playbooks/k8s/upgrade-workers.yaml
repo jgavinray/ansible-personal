@@ -2,7 +2,7 @@
 - hosts: k8s_workers
   become: yes
   gather_facts: yes
-  serial: "{{ worker_upgrade_strategy == 'serial' | ternary(1, '100%') }}"
+  serial: "{{ (worker_upgrade_strategy == 'serial') | ternary(1, '100%') }}"
   vars:
     k8s_arch: "{{ k8s_arch_mapping[ansible_architecture] | default('amd64') }}"
     k8s_arch_mapping:
